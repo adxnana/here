@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { signIn, signUp } from "@/lib/bank-store";
+import { signIn } from "@/lib/bank-store";
 import { Logo } from "@/components/Logo";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -8,29 +8,19 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   function validate(): string | null {
-    if (mode === "signup") {
-      const name = fullName.trim();
-      if (name.length < 2) return "Please enter your full name.";
-      if (name.length > 80) return "Name is too long.";
-    }
-    const e = email.trim().toLowerCase();
-    if (!EMAIL_RE.test(e)) return "Enter a valid email address.";
-    if (e.length > 120) return "Email is too long.";
-    if (password.length < 6) return "Password must be at least 6 characters.";
+    if (username.trim().length < 3) return "Enter your username.";
+    if (username.length > 60) return "Username is too long.";
+    if (password.length < 1) return "Enter your password.";
     if (password.length > 128) return "Password is too long.";
     return null;
   }
@@ -44,10 +34,7 @@ function LoginPage() {
       return;
     }
     setLoading(true);
-    const result =
-      mode === "signin"
-        ? signIn(email, password)
-        : signUp({ email, password, fullName });
+    const result = signIn(username, password);
     setLoading(false);
     if (!result.ok) {
       setError(result.error);
@@ -67,35 +54,18 @@ function LoginPage() {
           </div>
 
           <div className="bg-card rounded-2xl shadow-elevated p-6 sm:p-8 border border-border">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              {mode === "signin" ? "Sign on" : "Create your account"}
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Sign on</h1>
 
             <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
-              {mode === "signup" && (
-                <Field label="Full name" htmlFor="fullName">
-                  <input
-                    id="fullName"
-                    type="text"
-                    autoComplete="name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="bank-input"
-                    maxLength={80}
-                    required
-                  />
-                </Field>
-              )}
-
-              <Field label="Username" htmlFor="email">
+              <Field label="Username" htmlFor="username">
                 <input
-                  id="email"
-                  type="email"
+                  id="username"
+                  type="text"
                   autoComplete="username"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="bank-input"
-                  maxLength={120}
+                  maxLength={60}
                   required
                 />
               </Field>
@@ -105,13 +75,10 @@ function LoginPage() {
                   <input
                     id="password"
                     type={showPw ? "text" : "password"}
-                    autoComplete={
-                      mode === "signin" ? "current-password" : "new-password"
-                    }
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bank-input pr-12"
-                    minLength={6}
                     maxLength={128}
                     required
                   />
@@ -126,19 +93,17 @@ function LoginPage() {
                 </div>
               </Field>
 
-              {mode === "signin" && (
-                <div className="flex items-center justify-between text-sm">
-                  <label className="inline-flex items-center gap-2 text-foreground">
-                    <input
-                      type="checkbox"
-                      checked={remember}
-                      onChange={(e) => setRemember(e.target.checked)}
-                      className="h-4 w-4 accent-[color:var(--primary)]"
-                    />
-                    Save username
-                  </label>
-                </div>
-              )}
+              <div className="flex items-center justify-between text-sm">
+                <label className="inline-flex items-center gap-2 text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                    className="h-4 w-4 accent-[color:var(--primary)]"
+                  />
+                  Save username
+                </label>
+              </div>
 
               {error && (
                 <div
@@ -154,27 +119,9 @@ function LoginPage() {
                 disabled={loading}
                 className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold shadow-brand hover:bg-primary-dark transition-colors disabled:opacity-60"
               >
-                {loading ? "Please wait…" : mode === "signin" ? "Sign on" : "Create account"}
+                {loading ? "Please wait…" : "Sign on"}
               </button>
             </form>
-
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              {mode === "signin" ? (
-                <button
-                  onClick={() => setMode("signup")}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Enroll
-                </button>
-              ) : (
-                <button
-                  onClick={() => setMode("signin")}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Back to sign on
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </div>
