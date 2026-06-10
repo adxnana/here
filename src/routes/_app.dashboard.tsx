@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSession } from "@/hooks/use-session";
 import { useAccounts, useTxns } from "@/hooks/use-bank";
-import { formatCurrency, greeting, type Transaction, type Account } from "@/lib/bank-store";
-import { ArrowUpRight, ArrowDownRight, Plus, Send, Receipt, Pencil } from "lucide-react";
+import { formatCurrency, greeting, type Transaction } from "@/lib/bank-store";
+import { ArrowUpRight, ArrowDownRight, Plus, Send, Receipt } from "lucide-react";
 import { useState } from "react";
 import { TransactionDetailsDrawer } from "@/components/TransactionDetailsDrawer";
-import { EditBalanceDialog } from "@/components/EditBalanceDialog";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
@@ -13,11 +12,12 @@ export const Route = createFileRoute("/_app/dashboard")({
 
 function Dashboard() {
   const { user } = useSession();
+  // Account balances are read from the local store. To change the starting
+  // balances, edit DEFAULT_ACCOUNTS in src/lib/bank-store.ts.
   const { accounts } = useAccounts();
   const { txns: allTxns } = useTxns();
   const txns = allTxns.slice(0, 4);
   const [selected, setSelected] = useState<Transaction | null>(null);
-  const [editing, setEditing] = useState<Account | null>(null);
 
   const total = accounts.reduce((s, a) => s + a.balance, 0);
 
@@ -69,17 +69,8 @@ function Dashboard() {
                 {formatCurrency(a.balance)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">Available balance</p>
-              <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditing(a)}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit balance
-                </button>
-              </div>
             </article>
+
           ))}
         </div>
       </section>
@@ -133,7 +124,6 @@ function Dashboard() {
       </section>
 
       <TransactionDetailsDrawer txn={selected} onClose={() => setSelected(null)} />
-      <EditBalanceDialog account={editing} onClose={() => setEditing(null)} />
     </div>
   );
 }
