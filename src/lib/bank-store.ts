@@ -1,8 +1,8 @@
-// Local store for the Wells Fargo: Online Access prototype.
-// Persists users, accounts, and activity in localStorage.
+// Local store for Wells Fargo: Online Access.
+// Persists the user, accounts, and activity in the browser's localStorage.
 
 export type User = {
-  email: string;
+  username: string;
   password: string;
   firstName: string;
   fullName: string;
@@ -23,10 +23,34 @@ export type Transaction = {
   category: string;
 };
 
-const USERS_KEY = "maskael_users_v1";
-const SESSION_KEY = "maskael_session_v1";
-const ACCOUNTS_KEY = "maskael_accounts_v1";
-const TXNS_KEY = "maskael_txns_v1";
+const USERS_KEY = "wf_users_v1";
+const SESSION_KEY = "wf_session_v1";
+const ACCOUNTS_KEY = "wf_accounts_v1";
+const TXNS_KEY = "wf_txns_v1";
+
+// ════════════════════════════════════════════════════════════════════
+// 👤 EDIT THE SIGN-IN CREDENTIALS HERE
+// Change `username`, `password`, `firstName`, and `fullName` below to set
+// who can sign in. These values are seeded automatically on first run.
+// ════════════════════════════════════════════════════════════════════
+const ACCOUNT_HOLDER: User = {
+  username: "Sandra1230",
+  password: "mollyisagoodkitten.1",
+  firstName: "Sandra",
+  fullName: "Sandra Olsen Gore",
+};
+
+// ════════════════════════════════════════════════════════════════════
+// 💰 EDIT THE STARTING ACCOUNT BALANCES HERE
+// Change the `balance` (and `number`/`type`) values below to set the
+// opening balances. They are written to localStorage on first run.
+// To apply new values to a browser that already ran the app, clear the
+// site data (or remove the "wf_accounts_v1" localStorage key).
+// ════════════════════════════════════════════════════════════════════
+export const DEFAULT_ACCOUNTS: Account[] = [
+  { id: "chk-1", type: "Checking", number: "****4218", balance: 15000 },
+  { id: "sav-1", type: "Savings", number: "****9043", balance: 5000 },
+];
 
 // ---------- Reactive change channel ----------
 type Listener = () => void;
@@ -54,57 +78,25 @@ function writeUsers(users: User[]) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
-function seedDemoUser() {
+function seedAccountHolder() {
   const users = readUsers();
-  if (!users.some((u) => u.email === "sandra@demo.bank")) {
-    users.push({
-      email: "sandra@demo.bank",
-      password: "demo1234",
-      firstName: "Sandra",
-      fullName: "Sandra Olsen Gore",
-    });
+  if (!users.some((u) => u.username === ACCOUNT_HOLDER.username)) {
+    users.push({ ...ACCOUNT_HOLDER });
     writeUsers(users);
   }
 }
 
-export function signUp(input: {
-  email: string;
-  password: string;
-  fullName: string;
-}): { ok: true } | { ok: false; error: string } {
-  const email = input.email.trim().toLowerCase();
-  if (!email || !input.password || !input.fullName.trim()) {
-    return { ok: false, error: "Please fill in all fields." };
-  }
-  if (input.password.length < 6) {
-    return { ok: false, error: "Password must be at least 6 characters." };
-  }
-  const users = readUsers();
-  if (users.some((u) => u.email === email)) {
-    return { ok: false, error: "An account with this email already exists." };
-  }
-  users.push({
-    email,
-    password: input.password,
-    firstName: input.fullName.trim().split(" ")[0],
-    fullName: input.fullName.trim(),
-  });
-  writeUsers(users);
-  setSession(email);
-  return { ok: true };
-}
-
 export function signIn(
-  email: string,
+  username: string,
   password: string,
 ): { ok: true } | { ok: false; error: string } {
-  seedDemoUser();
+  seedAccountHolder();
   const users = readUsers();
-  const u = users.find((x) => x.email === email.trim().toLowerCase());
+  const u = users.find((x) => x.username === username.trim());
   if (!u || u.password !== password) {
-    return { ok: false, error: "Invalid email or password." };
+    return { ok: false, error: "Invalid username or password." };
   }
-  setSession(u.email);
+  setSession(u.username);
   return { ok: true };
 }
 
@@ -112,24 +104,19 @@ export function signOut() {
   localStorage.removeItem(SESSION_KEY);
 }
 
-function setSession(email: string) {
-  localStorage.setItem(SESSION_KEY, email);
+function setSession(username: string) {
+  localStorage.setItem(SESSION_KEY, username);
 }
 
 export function getCurrentUser(): User | null {
   if (typeof window === "undefined") return null;
-  seedDemoUser();
-  const email = localStorage.getItem(SESSION_KEY);
-  if (!email) return null;
-  return readUsers().find((u) => u.email === email) ?? null;
+  seedAccountHolder();
+  const username = localStorage.getItem(SESSION_KEY);
+  if (!username) return null;
+  return readUsers().find((u) => u.username === username) ?? null;
 }
 
 // ---------- Accounts ----------
-export const DEFAULT_ACCOUNTS: Account[] = [
-  { id: "chk-1", type: "Checking", number: "****4218", balance: 15000 },
-  { id: "sav-1", type: "Savings", number: "****9043", balance: 5000 },
-];
-
 function cloneDefaults(): Account[] {
   return DEFAULT_ACCOUNTS.map((a) => ({ ...a }));
 }
@@ -149,21 +136,10 @@ export function getAccounts(): Account[] {
   }
 }
 
+// Persists account balances. Used by the transfer flow to move money
+// between accounts and apply wire fees.
 export function saveAccounts(accounts: Account[]) {
   localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-  notify();
-}
-
-export function updateAccountBalance(id: string, balance: number) {
-  const next = getAccounts().map((a) =>
-    a.id === id ? { ...a, balance: Math.max(0, Number(balance) || 0) } : a,
-  );
-  saveAccounts(next);
-}
-
-export function resetAccounts() {
-  saveAccounts(cloneDefaults());
-  localStorage.setItem(TXNS_KEY, JSON.stringify(defaultTxns()));
   notify();
 }
 
