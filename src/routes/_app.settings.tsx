@@ -1,10 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
 import { useSession } from "@/hooks/use-session";
 import { useTheme } from "@/hooks/use-theme";
-import { resetAccounts } from "@/lib/bank-store";
-import { Bell, KeyRound, ShieldCheck, LogOut, User, Moon, Sun, RotateCcw } from "lucide-react";
+import { Bell, KeyRound, ShieldCheck, LogOut, User, Moon, Sun } from "lucide-react";
 
 export const Route = createFileRoute("/_app/settings")({
   component: SettingsPage,
@@ -14,7 +11,6 @@ function SettingsPage() {
   const { user, logout } = useSession();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
-  const [confirmReset, setConfirmReset] = useState(false);
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -32,7 +28,7 @@ function SettingsPage() {
           </div>
           <div className="min-w-0">
             <p className="font-semibold text-foreground">{user?.fullName}</p>
-            <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+            <p className="text-sm text-muted-foreground truncate">@{user?.username}</p>
           </div>
         </div>
       </section>
@@ -76,29 +72,6 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl bg-card border border-border p-5 shadow-card">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary grid place-items-center">
-              <RotateCcw className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="font-semibold text-foreground">Reset accounts</p>
-              <p className="text-xs text-muted-foreground">
-                Restore starting balances and recent activity.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setConfirmReset(true)}
-            className="h-10 px-4 rounded-xl border border-border font-semibold text-foreground hover:bg-secondary text-sm"
-          >
-            Reset
-          </button>
-        </div>
-      </section>
-
       <button
         onClick={() => {
           logout();
@@ -112,41 +85,6 @@ function SettingsPage() {
       <p className="text-xs text-center text-muted-foreground">
         Wells Fargo: Online Access
       </p>
-
-      {confirmReset && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-40 grid place-items-center bg-foreground/40 p-4"
-        >
-          <div className="bg-card rounded-2xl shadow-elevated max-w-sm w-full p-6">
-            <h2 className="text-lg font-bold text-foreground">Reset accounts?</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Checking will return to $15,000 and Savings to $5,000. Your recent activity will also be restored to the starting state.
-            </p>
-            <div className="mt-5 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setConfirmReset(false)}
-                className="h-11 rounded-xl border border-border font-semibold text-foreground hover:bg-secondary"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  resetAccounts();
-                  setConfirmReset(false);
-                  toast.success("Accounts restored", {
-                    description: "Checking: $15,000 · Savings: $5,000",
-                  });
-                }}
-                className="h-11 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary-dark"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
