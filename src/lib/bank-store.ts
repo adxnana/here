@@ -23,10 +23,13 @@ export type Transaction = {
   category: string;
 };
 
-const USERS_KEY = "wf_users_v1";
-const SESSION_KEY = "wf_session_v1";
-const ACCOUNTS_KEY = "wf_accounts_v1";
-const TXNS_KEY = "wf_txns_v1";
+// NOTE: bump the "_v2" suffix on these keys any time you change the seeded
+// credentials, balances, or transactions below — it forces every browser to
+// re-seed with the new values instead of reusing old saved data.
+const USERS_KEY = "wf_users_v2";
+const SESSION_KEY = "wf_session_v2";
+const ACCOUNTS_KEY = "wf_accounts_v2";
+const TXNS_KEY = "wf_txns_v2";
 
 // ════════════════════════════════════════════════════════════════════
 // 👤 EDIT THE SIGN-IN CREDENTIALS HERE
@@ -36,8 +39,8 @@ const TXNS_KEY = "wf_txns_v1";
 const ACCOUNT_HOLDER: User = {
   username: "Suebee1230",
   password: "mollyisagoodkitten1",
-  firstName: "Sandra",
-  fullName: "Sandra Olsen Gore",
+  firstName: "Kayla",
+  fullName: "Kayla",
 };
 
 // ════════════════════════════════════════════════════════════════════
@@ -46,7 +49,7 @@ const ACCOUNT_HOLDER: User = {
 // opening balances. They are written to localStorage on first run.
 // Total shown on the dashboard = sum of every balance below.
 // To apply new values to a browser that already ran the app, clear the
-// site data (or remove the "wf_accounts_v1" localStorage key).
+// site data (or remove the "wf_accounts_v2" localStorage key).
 // ════════════════════════════════════════════════════════════════════
 export const DEFAULT_ACCOUNTS: Account[] = [
   { id: "chk-1", type: "Checking", number: "****4218", balance: 150000 },
@@ -154,7 +157,7 @@ export function saveAccounts(accounts: Account[]) {
 //   amount   — POSITIVE = money in (green), NEGATIVE = money out
 //   category — free text, also searchable
 // These are written to localStorage on first run; clear site data (or
-// remove the "wf_txns_v1" key) to re-seed an existing browser.
+// remove the "wf_txns_v2" key) to re-seed an existing browser.
 // ════════════════════════════════════════════════════════════════════
 function defaultTxns(): Transaction[] {
   const today = new Date();
