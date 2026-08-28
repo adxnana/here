@@ -39,8 +39,8 @@ const TXNS_KEY = "wf_txns_v2";
 const ACCOUNT_HOLDER: User = {
   username: "Suebee1230",
   password: "mollyisagoodkitten1",
-  firstName: "Kayla",
-  fullName: "Kayla",
+  firstName: "Sandra",
+  fullName: "Sandra Olsen Gore",
 };
 
 // ════════════════════════════════════════════════════════════════════
@@ -52,8 +52,8 @@ const ACCOUNT_HOLDER: User = {
 // site data (or remove the "wf_accounts_v2" localStorage key).
 // ════════════════════════════════════════════════════════════════════
 export const DEFAULT_ACCOUNTS: Account[] = [
-  { id: "chk-1", type: "Checking", number: "****4218", balance: 150000 },
-  { id: "sav-1", type: "Savings", number: "****9043", balance: 250000 },
+  { id: "chk-1", type: "Checking", number: "****4218", balance: 2800.76 },
+  { id: "sav-1", type: "Savings", number: "****9043", balance: 0 },
 ];
 
 // ---------- Reactive change channel ----------
@@ -184,7 +184,7 @@ function defaultTxns(): Transaction[] {
     { id: "t18", date: d(10), merchant: "Nordstrom", amount: -864.3, category: "Shopping" },
     { id: "t19", date: d(11), merchant: "Rental Income — 14th Street", amount: 4200, category: "Income" },
     { id: "t20", date: d(12), merchant: "The Fig House Restaurant", amount: -218.44, category: "Dining" },
-    { id: "t21", date: d(13), merchant: "Transfer from Savings", amount: 2500, category: "Transfer" },
+    { id: "t21", date: d(13), merchant: "Transfer from Savings", amount: 5812.4, category: "Transfer" },
     { id: "t22", date: d(14), merchant: "State Farm Auto Insurance", amount: -312.75, category: "Insurance" },
     { id: "t23", date: d(16), merchant: "Amazon.com", amount: -426.19, category: "Shopping" },
     { id: "t24", date: d(18), merchant: "Bonus Deposit — Northgate Holdings", amount: 9500, category: "Income" },
@@ -193,7 +193,7 @@ function defaultTxns(): Transaction[] {
     { id: "t27", date: d(24), merchant: "Interest Payment — Checking", amount: 96.32, category: "Interest" },
     { id: "t28", date: d(26), merchant: "Costco Wholesale", amount: -487.62, category: "Groceries" },
     { id: "t29", date: d(28), merchant: "Sale of Securities — Fidelity", amount: 26400, category: "Investments" },
-    { id: "t30", date: d(30), merchant: "Wire Transfer — Alvarez & Co.", amount: -14000, category: "Wire Transfer" },
+    { id: "t30", date: d(30), merchant: "Wire Transfer — Alvarez & Co.", amount: -33635.21, category: "Wire Transfer" },
   ];
 }
 
